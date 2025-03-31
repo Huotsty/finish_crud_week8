@@ -36,5 +36,11 @@ class IphoneStockMockRepository extends IPhoneStockRepository{
     // TODO: implement deleteIPhoneStock
     throw UnimplementedError();
   }
+  
+  @override
+  Future<void> updateIPhoneStock(IphoneStock iphoneStock) {
+    // TODO: implement updateIPhoneStock
+    throw UnimplementedError();
+  }
 
 }

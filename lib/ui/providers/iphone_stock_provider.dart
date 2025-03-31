@@ -47,5 +47,19 @@ class IphoneStockProvider extends ChangeNotifier {
       print("Error deleting iPhone stock: $e");
     }
   }
-  
+  Future<void> updateIphoneStock(IphoneStock iphoneStock) async {
+  try {
+    // Update item in Firebase
+    await repository.updateIPhoneStock(iphoneStock);
+
+    // Update item in local list
+    final index = _iphoneStock.indexWhere((item) => item.id == iphoneStock.id);
+    if (index != -1) {
+      _iphoneStock[index] = iphoneStock; // Replace with updated item
+      notifyListeners(); // Notify listeners to update UI
+    }
+  } catch (e) {
+    print("Error updating iPhone stock: $e");
+  }
+}
 }

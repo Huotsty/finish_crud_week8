@@ -99,4 +99,24 @@ Future<void> deleteIPhoneStock(String id) async {
     throw Exception('Error deleting iPhone stock: $e');
   }
 }
+@override
+Future<void> updateIPhoneStock(IphoneStock iphoneStock) async {
+  final url = Uri.parse("$baseUrl/iphoneStock/${iphoneStock.id}.json");
+
+  try {
+    final response = await http.patch(
+      url,
+      body: json.encode(IphoneStockDto.toJson(iphoneStock)),
+      headers: {"Content-Type": "application/json"},
+    );
+
+    if (response.statusCode == 200) {
+      print('Successfully updated iPhone stock: ${iphoneStock.id}');
+    } else {
+      throw Exception('Failed to update iPhone stock: ${response.statusCode}');
+    }
+  } catch (e) {
+    throw Exception('Error updating iPhone stock: $e');
+  }
+}
 }

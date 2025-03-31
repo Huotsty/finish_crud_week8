@@ -70,47 +70,60 @@ class StockListScreen extends StatelessWidget {
                       'Price: \$${stock.price}\nQuantity: ${stock.quantity}',
                       style: const TextStyle(color: Colors.black54),
                     ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: () async {
-                        final confirm = await showDialog<bool>(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: const Text("Confirm Delete"),
-                              content: const Text(
-                                "Are you sure you want to delete this item?",
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed:
-                                      () => Navigator.pop(context, false),
-                                  child: const Text("Cancel"),
-                                ),
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context, true),
-                                  child: const Text("Delete"),
-                                ),
-                              ],
-                            );
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit, color: Colors.green),
+                          onPressed: () {
+                            _showEditItemDialog(context, stock);
                           },
-                        );
+                        ),
 
-                        if (confirm == true) {
-                          try {
-                            await provider.deleteIphoneStock(stock.id);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("Item deleted successfully!"),
-                              ),
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () async {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: const Text("Confirm Delete"),
+                                  content: const Text(
+                                    "Are you sure you want to delete this item?",
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed:
+                                          () => Navigator.pop(context, false),
+                                      child: const Text("Cancel"),
+                                    ),
+                                    TextButton(
+                                      onPressed:
+                                          () => Navigator.pop(context, true),
+                                      child: const Text("Delete"),
+                                    ),
+                                  ],
+                                );
+                              },
                             );
-                          } catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("Error: $e")),
-                            );
-                          }
-                        }
-                      },
+
+                            if (confirm == true) {
+                              try {
+                                await provider.deleteIphoneStock(stock.id);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Item deleted successfully!"),
+                                  ),
+                                );
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text("Error: $e")),
+                                );
+                              }
+                            }
+                          },
+                        ),
+                      ],
                     ),
                   ),
                 );
@@ -126,6 +139,95 @@ class StockListScreen extends StatelessWidget {
         backgroundColor: Colors.blueAccent,
         child: const Icon(Icons.add),
       ),
+    );
+  }
+
+  void _showEditItemDialog(BuildContext context, IphoneStock stock) {
+    final modelController = TextEditingController(text: stock.iphoneModel);
+    final priceController = TextEditingController(text: stock.price.toString());
+    final quantityController = TextEditingController(
+      text: stock.quantity.toString(),
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Edit Item"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: modelController,
+                decoration: const InputDecoration(labelText: "Model Name"),
+              ),
+              TextField(
+                controller: priceController,
+                decoration: const InputDecoration(labelText: "Price"),
+                keyboardType: TextInputType.number,
+              ),
+              TextField(
+                controller: quantityController,
+                decoration: const InputDecoration(labelText: "Quantity"),
+                keyboardType: TextInputType.number,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () async {
+                final model = modelController.text.trim();
+                final priceText = priceController.text.trim();
+                final quantityText = quantityController.text.trim();
+
+                if (model.isEmpty ||
+                    priceText.isEmpty ||
+                    quantityText.isEmpty ||
+                    double.tryParse(priceText) == null ||
+                    int.tryParse(quantityText) == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Please enter valid data")),
+                  );
+                  return;
+                }
+
+                // Create updated iPhoneStock object
+                final updatedStock = IphoneStock(
+                  id: stock.id, // Retain the existing ID
+                  iphoneModel: model,
+                  price: double.parse(priceText),
+                  quantity: int.parse(quantityText),
+                );
+
+                // Update via provider
+                final provider = Provider.of<IphoneStockProvider>(
+                  context,
+                  listen: false,
+                );
+
+                try {
+                  await provider.updateIphoneStock(updatedStock);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Item updated successfully!")),
+                  );
+                  Navigator.pop(context);
+                } catch (e) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text("Error: $e")));
+                }
+              },
+              child: const Text("Update"),
+            ),
+          ],
+        );
+      },
     );
   }
 
