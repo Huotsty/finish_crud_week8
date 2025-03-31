@@ -21,5 +21,20 @@ class IphoneStockMockRepository extends IPhoneStockRepository{
       return _iphoneStock;
     });
   }
+  
+  @override
+  Future<void> addIPhoneStock(IphoneStock iphoneStock) {
+    // Simulate a delay for adding the item
+    return Future.delayed(const Duration(seconds: 1), () {
+      // Add the new item to the list
+      _iphoneStock.add(iphoneStock);
+    });
+  }
+  
+  @override
+  Future<void> deleteIPhoneStock(String id) {
+    // TODO: implement deleteIPhoneStock
+    throw UnimplementedError();
+  }
 
 }

@@ -13,7 +13,6 @@ class IphoneStockRemoteRepository extends IPhoneStockRepository {
   @override
   Future<List<IphoneStock>> getIPhoneStock() async {
     final url = Uri.parse("$baseUrl$endpoint");
-
     try {
       // Perform a GET request
       final response = await http.get(url);
@@ -49,4 +48,55 @@ class IphoneStockRemoteRepository extends IPhoneStockRepository {
       throw Exception('Error fetching iPhone stock: $e');
     }
   }
+  
+  @override
+Future<void> addIPhoneStock(IphoneStock iphoneStock) async {
+  final url = Uri.parse("$baseUrl$endpoint");
+
+  try {
+    // Convert IphoneStock to JSON using IphoneStockDto
+    final Map<String, dynamic> jsonData = IphoneStockDto.toJson(iphoneStock);
+
+    // Perform the POST request
+    final response = await http.post(
+      url,
+      body: json.encode(jsonData),
+      headers: {"Content-Type": "application/json"},
+    );
+
+    if (response.statusCode == 200) {
+      // Firebase automatically generates an ID and returns it in the response body
+      final Map<String, dynamic> responseBody = json.decode(response.body);
+
+      // Log the generated ID (key)
+      final generatedId = responseBody['name'];
+      print('Added iPhone stock with ID: $generatedId');
+    } else {
+      throw Exception('Failed to add iPhone stock: ${response.statusCode}');
+    }
+  } catch (e) {
+    throw Exception('Error adding iPhone stock: $e');
+  }
+}
+
+  @override
+Future<void> deleteIPhoneStock(String id) async {
+  // Append the ID to the endpoint to target the specific item
+  final url = Uri.parse("$baseUrl/iphoneStock/$id.json");
+
+  try {
+    // Perform the DELETE request
+    final response = await http.delete(url);
+
+    if (response.statusCode == 200) {
+      // Success: The stock item is deleted
+      print('Successfully deleted iPhone stock with ID: $id');
+    } else {
+      throw Exception('Failed to delete iPhone stock: ${response.statusCode}');
+    }
+  } catch (e) {
+    // Handle error
+    throw Exception('Error deleting iPhone stock: $e');
+  }
+}
 }

@@ -27,4 +27,25 @@ class IphoneStockProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+  Future<void> addIphoneStock(IphoneStock iphoneStock) async {
+    try {
+      await repository.addIPhoneStock(iphoneStock);
+      _iphoneStock.add(iphoneStock);
+      notifyListeners();
+    } catch (e) {
+      // Handle error
+      print("Error adding iPhone stock: $e");
+    }
+  }
+  Future<void> deleteIphoneStock(String id) async {
+    try {
+      await repository.deleteIPhoneStock(id);
+      _iphoneStock.removeWhere((item) => item.id == id);
+      notifyListeners();
+    } catch (e) {
+      // Handle error
+      print("Error deleting iPhone stock: $e");
+    }
+  }
+  
 }
