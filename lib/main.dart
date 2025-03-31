@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
-import 'async_value.dart';
+import 'ui/providers/async_value.dart';
 
 // REPOS
 abstract class PancakeRepository {
